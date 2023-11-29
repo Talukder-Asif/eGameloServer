@@ -79,6 +79,7 @@ async function run() {
           name: data.name,
           email: data.email,
           role: data.role,
+          contestAdded:data.contestAdded,
           photo: data.photo,
           Contest: data.Contest,
         },
@@ -232,41 +233,65 @@ async function run() {
       res.send(result);
     });
 
-
-
-// User API Update
+    // User API Update
     app.put("/winner/user", async (req, res) => {
       const email = req.query.email;
       const contestID = req.query.contestID;
-      const filter = { "email": email, "Contest.contestID": contestID };
+      const filter = { email: email, "Contest.contestID": contestID };
       const updatedDoc = {
-        $set: { "Contest.$.result": "Win" }
+        $set: { "Contest.$.result": "Win" },
       };
-    
+
       const options = { upsert: true };
-      const result = await userCollection.updateOne(filter, updatedDoc, options);
-    
+      const result = await userCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+
       res.send(result);
     });
-
-
+  // Order API Update
     app.put("/winner/order", async (req, res) => {
       const email = req.query.email;
       const contestID = req.query.contestID;
       const filter = { userEmail: email, contestID: contestID };
       const updatedDoc = {
-        $set: { userResult: "Win" }
+        $set: { userResult: "Win" },
       };
-    
+
       const options = { upsert: true };
-      const result = await submitCollection.updateOne(filter, updatedDoc, options);
-    
+      const result = await submitCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+
       res.send(result);
     });
 
 
+    // Get popular context
+    app.get("/topContest", async (req, res) => {
+      const cursor = dataCollection.find().sort({ participation: -1 }).limit(6);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
+// Get all the winner data using submit
+    app.get("/allWinsubmission", async (req, res) => {
+      const quary = { userResult: "Win" };
+      const result = await submitCollection.find(quary).toArray();
+      res.send(result);
+    });
 
+        // Get popular context
+        app.get("/topcontestance", async (req, res) => {
+          const cursor = userCollection.find().sort({ contestAdded: -1 }).limit(6);
+          const result = await cursor.toArray();
+          res.send(result);
+        });
+    
 
 
 
