@@ -11,7 +11,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:4173"],
+    origin: ["http://localhost:5173", "http://localhost:4173", "https://endgame-6eef0.web.app","https://end-game-theta.vercel.app", "https://successful-impulse.surge.sh"],
     credentials: true,
   })
 );
@@ -287,7 +287,7 @@ async function run() {
     app.get("/allWinsubmission", async (req, res) => {
       const quary = { userResult: "Win" };
       const result = await submitCollection.find(quary).toArray();
-      res.send(result);
+      res.send(result.reverse());
     });
 
         // Get popular context
@@ -300,7 +300,7 @@ async function run() {
         
 
 // Get top win user for leaderboard
-app.get('/leaderboard', async(req, res) =>{
+app.get('/leaderboard',verifyToken, async(req, res) =>{
   const cursor = userCollection.find().sort({ win: -1 });
   const result = await cursor.toArray();
   res.send(result);
