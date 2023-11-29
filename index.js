@@ -238,8 +238,13 @@ async function run() {
       const email = req.query.email;
       const contestID = req.query.contestID;
       const filter = { email: email, "Contest.contestID": contestID };
+
+      const query = { email: email };
+      const existingUser = await userCollection.findOne(query);
+      const pastWin = parseInt(existingUser.win)
+
       const updatedDoc = {
-        $set: { "Contest.$.result": "Win" },
+        $set: { "Contest.$.result": "Win", win: pastWin+1 },
       };
 
       const options = { upsert: true };
@@ -292,6 +297,18 @@ async function run() {
           res.send(result);
         });
     
+        
+
+// Get top win user for leaderboard
+app.get('/leaderboard', async(req, res) =>{
+  const cursor = userCollection.find().sort({ win: -1 });
+  const result = await cursor.toArray();
+  res.send(result);
+});
+
+
+
+
 
 
 
